@@ -2,10 +2,11 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const axios = require('axios');
-const _ = require('lodash');
-const Pusher = require('pusher');
+const apicache = require('apicache');
+const cors = require('cors');
+const compression = require('compression');
 
+const Pusher = require('pusher');
 const pusher = new Pusher({
     appId: '586188',
     key: 'f9ec22c4400bb22d2aa4',
@@ -14,63 +15,40 @@ const pusher = new Pusher({
     encrypted: true
 });
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const NodeCache = require('node-cache');
+const nodeCache = new NodeCache();
 
-const API_URL_LATEST = 'https://api.openaq.org/v1/latest';
+const indexRouter = require('./routes/index');
 
 const app = express();
 
+app.use(cors({
+    methods: ['GET'],
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression());
+app.use(apicache.middleware('1 day'));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Serve static files from the React app
+app.use(express.static(path.resolve(__dirname, '../pollution-pwa/build')));
 
-let lastHash = '';
+// app.get('*', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, '../pollution-pwa/build/index.html'));
+// });
 
-function getMeasurementsLastUpdated(measurements = []) {
-    return _.chain(measurements)
-        .sortedUniqBy(item => item.lastUpdated)
-        .last()
-        .get('lastUpdated')
-        .thru(lastUpdated => (new Date(lastUpdated)).getTime())
-        .value();
-}
+const cities = require('./cities');
+const countries = require('./countries');
+const latest = require('./latest');
+const keys = require('./keys');
 
-function getHash(results = []) {
-    return results
-        .map(item => `${item.location}_${getMeasurementsLastUpdated(item.measurements)}`)
-        .join('-');
-}
+const args = { apicache, app, nodeCache, pusher };
 
-const getLatestResults = () => {
-    axios.get(API_URL_LATEST)
-    .then(res => {
-        const results = _.get(res, 'data.results', []);
-
-        const currentHash = getHash(results);
-
-        if (currentHash !== lastHash) {
-            lastHash = currentHash;
-
-            _.chain(results).groupBy('country').forEach((results, country) => {
-                pusher.trigger('pollution', 'country', {
-                    country,
-                    results,
-                });
-            }).value();
-        }
-    });
-};
-
-getLatestResults();
-
-setInterval(() => {
-    getLatestResults();
-}, 30 * 1000);
+cities(args);
+countries(args);
+latest(args);
+keys(args);
 
 module.exports = app;

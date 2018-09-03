@@ -1,24 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Pusher from 'pusher-js';
+import { Provider } from 'react-redux';
+import { applyMiddleware, createStore } from 'redux';
+import milligram from 'milligram'; // eslint-disable-line no-unused-vars
+import logger from 'redux-logger';
 
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import reducers from './reducers';
 
-// Enable pusher logging - don't include this in production
-Pusher.logToConsole = true;
+const store = createStore(
+  reducers,
+  applyMiddleware(logger),
+);
 
-const pusher = new Pusher('f9ec22c4400bb22d2aa4', {
-  cluster: 'eu',
-  encrypted: true
-});
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);
 
-const channel = pusher.subscribe('pollution');
-
-channel.bind('country', (data) => {
-  console.log('country', data);
-});
-
-ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
