@@ -2,7 +2,7 @@ import Pusher from 'pusher-js';
 import React, { Component } from 'react';
 import { withContext } from 'recompose';
 
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
 
 import { CONTEXT_TYPES } from './constants';
@@ -29,13 +29,16 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Pollution</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <CountriesList />
-        <MeasurementsByCity />
+        <div className="container">
+          <div className="row">
+            <div className="column"><CountriesList /></div>
+          </div>
+          <div className="row">
+            <div className="column"><MeasurementsByCity /></div>
+          </div>
+        </div>
       </div>
     );
   }

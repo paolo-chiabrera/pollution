@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { get } from 'lodash';
+import get from 'lodash/get';
 import { compose, getContext, lifecycle } from 'recompose';
 import { connect } from 'react-redux';
 

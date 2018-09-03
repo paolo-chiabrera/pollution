@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { isEmpty, isString } from 'lodash';
+import { isEmpty, isString } from 'lodash/core';
 import { branch, compose, getContext, lifecycle, renderNothing } from 'recompose';
 import { connect } from 'react-redux';
 

@@ -1,4 +1,4 @@
-import { noop } from 'lodash';
+import { noop } from 'lodash/core';
 import PropTypes from 'prop-types';
 import React from 'react';
 
