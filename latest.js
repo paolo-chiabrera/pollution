@@ -71,7 +71,7 @@ const getLatest = ({ apicache, countries, nodeCache, pusher }) => {
 };
 
 const init = ({ apicache, app, nodeCache, pusher }) => {
-    const DEFERRED_MS = 5000;
+    const DEFERRED_MS = 2000;
 
     setTimeout(() => {
         const countries = nodeCache.get(COUNTRIES_KEY) || [];
@@ -91,10 +91,27 @@ const init = ({ apicache, app, nodeCache, pusher }) => {
 
         app.use(`${LATEST_PATH}`, (req, res) => {
             const { country } = req.query;
+            const key = `${LATEST_KEY}_${country}`;
 
-            nodeCache.get(`${LATEST_KEY}_${country}`, (err, data) => {
+            nodeCache.get(key, (err, data) => {
                 if (err) {
-                    res.status(500).json(err);
+                    console.error(`MISSING KEY: ${key}`, err);
+
+                    async.retry(
+                        { times: 3, interval: 200 },
+                        done => getLatestByCountry({ apicache, country, nodeCache, pusher }, done),
+                        (retryErr, retryData) => {
+                            if (retryErr) {
+                                console.error(`FATAL MISSING KEY: ${key}`, retryErr);
+
+                                res.status(500).json(err);
+                                return;
+                            }
+                            
+                            res.json(retryData);
+                        }
+                    );
+
                     return;
                 }
         

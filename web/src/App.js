@@ -20,7 +20,7 @@ const pusher = new Pusher('f9ec22c4400bb22d2aa4', {
 const channel = pusher.subscribe('pollution-development');
 
 const config = {
-  apiBaseUrl: 'http://localhost:4000/api',
+  apiBaseUrl: '/api',
 };
 
 class App extends Component {
