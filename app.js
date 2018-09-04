@@ -6,11 +6,19 @@ const apicache = require('apicache');
 const cors = require('cors');
 const compression = require('compression');
 
+require('dotenv').config();
+
+const {
+    PUSHER_APP_ID,
+    PUSHER_APP_KEY,
+    PUSHER_APP_SECRET,
+} = process.env;
+
 const Pusher = require('pusher');
 const pusher = new Pusher({
-    appId: '586188',
-    key: 'f9ec22c4400bb22d2aa4',
-    secret: '1087142e11205cbdc5be',
+    appId: PUSHER_APP_ID,
+    key: PUSHER_APP_KEY,
+    secret: PUSHER_APP_SECRET,
     cluster: 'eu',
     encrypted: true
 });

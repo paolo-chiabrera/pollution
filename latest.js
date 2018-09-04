@@ -31,7 +31,7 @@ const getLatestByCountry = ({ apicache, country, nodeCache, pusher }, done) => {
                 nodeCache.set(LATEST_KEY_COUNTRY, results, (err) => {
                     if (err) {
                         console.error(`SET ${LATEST_KEY_COUNTRY}`, err);
-                        done();
+                        done(err);
                         return;
                     }
 
@@ -41,14 +41,15 @@ const getLatestByCountry = ({ apicache, country, nodeCache, pusher }, done) => {
 
                     console.log(`SET ${LATEST_KEY_COUNTRY} OK`);
 
-                    done();
+                    done(null, results);
                 });
+            } else {
+                done(null, cachedResults);
             }
-
         })
         .catch(err => {
             console.error(`GET /latest ${country}`, err);
-            done();
+            done(err);
         });
 };
 
@@ -91,30 +92,15 @@ const init = ({ apicache, app, nodeCache, pusher }) => {
 
         app.use(`${LATEST_PATH}`, (req, res) => {
             const { country } = req.query;
-            const key = `${LATEST_KEY}_${country}`;
 
-            nodeCache.get(key, (err, data) => {
+            getLatestByCountry({ apicache, country, nodeCache, pusher }, (err, data) => {
                 if (err) {
-                    console.error(`MISSING KEY: ${key}`, err);
+                    console.error(`getLatestByCountry: ${country}`, err);
 
-                    async.retry(
-                        { times: 3, interval: 200 },
-                        done => getLatestByCountry({ apicache, country, nodeCache, pusher }, done),
-                        (retryErr, retryData) => {
-                            if (retryErr) {
-                                console.error(`FATAL MISSING KEY: ${key}`, retryErr);
-
-                                res.status(500).json(err);
-                                return;
-                            }
-                            
-                            res.json(retryData);
-                        }
-                    );
-
+                    res.status(500).json(err);
                     return;
                 }
-        
+                
                 res.json(data);
             });
         });

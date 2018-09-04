@@ -9,15 +9,17 @@ import { CONTEXT_TYPES } from './constants';
 import CountriesList from './CountriesList';
 import MeasurementsByCity from './MeasurementsByCity';
 
-// Enable pusher logging - don't include this in production
-// Pusher.logToConsole = true;
+const {
+  NODE_ENV,
+  REACT_APP_PUSHER_APP_KEY,
+} = process.env;
 
-const pusher = new Pusher('f9ec22c4400bb22d2aa4', {
+const pusher = new Pusher(REACT_APP_PUSHER_APP_KEY, {
   cluster: 'eu',
   encrypted: true
 });
 
-const channel = pusher.subscribe('pollution-development');
+const channel = pusher.subscribe(`pollution-${NODE_ENV}`);
 
 const config = {
   apiBaseUrl: '/api',

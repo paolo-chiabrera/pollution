@@ -11,5 +11,5 @@ module.exports = {
     LATEST_KEY: 'LATEST_KEY',
     LATEST_PATH: '/api/latest',
     KEYS_PATH: '/api/keys',
-    POLLUTION_CHANNEL: 'pollution-development',
+    POLLUTION_CHANNEL: `pollution-${process.env}`,
 };

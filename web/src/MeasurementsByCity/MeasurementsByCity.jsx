@@ -3,7 +3,7 @@ import React from 'react';
 
 const Measurement = ({ data }) => (
     <pre>
-        <code>{JSON.stringify(data, null, 4)}</code>
+        <code>{JSON.stringify(data, null, 2)}</code>
     </pre>
 );
 
@@ -14,7 +14,7 @@ const MeasurementsByCity = ({ measurementsByCity }) => (
                 measurementsByCity.map(({ city, location, measurements }) => (
                     <div key={location} style={{ textAlign: 'left' }}>
                         <dt>{decodeURIComponent(city)} - {decodeURIComponent(location)}</dt>
-                        <dd>
+                        <dd style={{ marginLeft: '10px' }}>
                             { measurements.map((data, ind) => <Measurement data={data} key={`${data.parameter}_${data.sourceName}_${ind}`} />)}
                         </dd>
                     </div>
