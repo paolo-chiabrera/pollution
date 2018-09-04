@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { isEmpty, isString } from 'lodash/core';
 import { branch, compose, getContext, lifecycle, renderNothing } from 'recompose';
 import { connect } from 'react-redux';
@@ -7,8 +6,6 @@ import { CONTEXT_TYPES } from '../constants';
 
 import { setMeasurementsByCity } from './actions';
 import { EVENT_LATEST } from './constants';
-
-import MeasurementsByCity from './MeasurementsByCity.jsx';
 
 const mapStateToProps = ({ measurementsByCity, selectedCountry }) => ({
     measurementsByCity,
@@ -19,9 +16,9 @@ const mapDispatchToProps = dispatch => ({
     setMeasurementsByCity: payload => dispatch(setMeasurementsByCity(payload)),
 });
 
-const getLatestMeasurements = ({ config, selectedCountry, setMeasurementsByCity }) => {
+const getLatestMeasurements = ({ axios, selectedCountry, setMeasurementsByCity }) => {
     return axios
-        .get(`${config.apiBaseUrl}/latest`, {
+        .get('/latest', {
             params: {
                 country: selectedCountry,
             },
@@ -38,17 +35,17 @@ export default compose(
     ),
     lifecycle({
         componentDidMount() {
-            const { channel, config, selectedCountry, setMeasurementsByCity } = this.props;
+            const { axios, channel, selectedCountry, setMeasurementsByCity } = this.props;
 
-            getLatestMeasurements({ config, selectedCountry, setMeasurementsByCity });
+            getLatestMeasurements({ axios, selectedCountry, setMeasurementsByCity });
 
             channel.bind(`${EVENT_LATEST}-${selectedCountry}`, data => setMeasurementsByCity(data));
         },
         componentDidUpdate(prevProps) {
-            const { channel, config, selectedCountry, setMeasurementsByCity } = this.props;
+            const { axios, channel, selectedCountry, setMeasurementsByCity } = this.props;
 
             if (selectedCountry !== prevProps.selectedCountry) {
-                getLatestMeasurements({ config, selectedCountry, setMeasurementsByCity });
+                getLatestMeasurements({ axios, selectedCountry, setMeasurementsByCity });
 
                 channel.unbind(`${EVENT_LATEST}-${prevProps.selectedCountry}`);
                 channel.bind(`${EVENT_LATEST}-${selectedCountry}`, data => setMeasurementsByCity(data));
@@ -60,6 +57,4 @@ export default compose(
             channel.unbind(`${EVENT_LATEST}-${selectedCountry}`);
         }
     })
-)(MeasurementsByCity);
-
-export { MeasurementsByCity };
+);

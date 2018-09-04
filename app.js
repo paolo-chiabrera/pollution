@@ -38,7 +38,7 @@ app.use(compression());
 app.use(apicache.middleware('5 minutes'));
 
 // Serve static files from the React app
-app.use(express.static(path.resolve(__dirname, './web/build')));
+app.use(express.static(path.resolve(__dirname, './pollution-react/build')));
 
 const cities = require('./cities');
 const countries = require('./countries');

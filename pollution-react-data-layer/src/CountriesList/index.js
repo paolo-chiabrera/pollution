@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { isArray, isEmpty } from 'lodash/core';
 import { compose, getContext, lifecycle } from 'recompose';
 import { connect } from 'react-redux';
@@ -7,8 +6,6 @@ import { CONTEXT_TYPES } from '../constants';
 
 import { setCountries, setSelectedCountry } from './actions';
 import { EVENT_COUNTRIES } from './constants';
-
-import CountriesList from './CountriesList.jsx';
 
 const mapStateToProps = ({ countries, selectedCountry }) => ({
     countries,
@@ -25,10 +22,10 @@ export default compose(
     connect(mapStateToProps, mapDispatchToProps),
     lifecycle({
         componentDidMount() {
-            const { channel, config, setCountries } = this.props;
+            const { axios, channel, setCountries } = this.props;
 
             axios
-                .get(`${config.apiBaseUrl}/countries`)
+                .get('/countries')
                 .then(({ data }) => setCountries(data));
 
             channel.bind(EVENT_COUNTRIES, data => setCountries(data));
@@ -41,6 +38,4 @@ export default compose(
             }
         },
     })
-)(CountriesList);
-
-export { CountriesList };
+);
