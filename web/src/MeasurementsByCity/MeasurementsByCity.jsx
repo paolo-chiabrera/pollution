@@ -13,7 +13,7 @@ const MeasurementsByCity = ({ measurementsByCity }) => (
             { 
                 measurementsByCity.map(({ city, location, measurements }) => (
                     <div key={location} style={{ textAlign: 'left' }}>
-                        <dt>{decodeURIComponent(city)} - {decodeURIComponent(location)}</dt>
+                        <dt>{city} - {location}</dt>
                         <dd style={{ marginLeft: '10px' }}>
                             { measurements.map((data, ind) => <Measurement data={data} key={`${data.parameter}_${data.sourceName}_${ind}`} />)}
                         </dd>

@@ -1,15 +1,11 @@
 module.exports = {
     API_OPENAQ: 'https://api.openaq.org/v1',
     CACHE_TTL_SEC: 60,
-    CITIES_KEY: 'CITIES_KEY',
-    COUNTRIES_KEY: 'COUNTRIES_KEY',
     CITIES_PATH: '/api/cities',
     COUNTRIES_PATH: '/api/countries',
     EVENT_CITIES: 'event-cities',
     EVENT_COUNTRIES: 'event-countries',
     EVENT_LATEST: 'event-latest',
-    LATEST_KEY: 'LATEST_KEY',
     LATEST_PATH: '/api/latest',
-    KEYS_PATH: '/api/keys',
-    POLLUTION_CHANNEL: `pollution-${process.env}`,
+    POLLUTION_CHANNEL: `pollution-${process.env.NODE_ENV}`,
 };

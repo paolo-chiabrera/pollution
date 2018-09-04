@@ -1,5 +1,5 @@
 import axios from 'axios';
-import get from 'lodash/get';
+import { isArray, isEmpty } from 'lodash/core';
 import { compose, getContext, lifecycle } from 'recompose';
 import { connect } from 'react-redux';
 
@@ -17,10 +17,7 @@ const mapStateToProps = ({ countries, selectedCountry }) => ({
 
 const mapDispatchToProps = dispatch => ({
     onSelect: countryCode => dispatch(setSelectedCountry(countryCode)),
-    setCountries: countries => {
-        dispatch(setCountries(countries));
-        dispatch(setSelectedCountry(get(countries, '0.code', '')))
-    },
+    setCountries: countries => dispatch(setCountries(countries)),
 });
 
 export default compose(
@@ -35,6 +32,13 @@ export default compose(
                 .then(({ data }) => setCountries(data));
 
             channel.bind(EVENT_COUNTRIES, data => setCountries(data));
+        },
+        componentDidUpdate(prevProps) {
+            const { countries, onSelect, selectedCountry } = this.props;
+
+            if (isArray(countries) && !isEmpty(countries) && isEmpty(selectedCountry)) {
+                onSelect(countries[0].code);
+            }
         },
     })
 )(CountriesList);

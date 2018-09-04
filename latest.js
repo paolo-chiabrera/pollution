@@ -1,86 +1,67 @@
-const async = require('async');
 const axios = require('axios');
 const _ = require('lodash');
 const os = require('os');
+const Promise = require('bluebird');
+
+const countries = require('./countries');
 
 const {
     API_OPENAQ,
     CACHE_TTL_SEC,
-    COUNTRIES_KEY,
     EVENT_LATEST,
-    LATEST_KEY,
     LATEST_PATH,
     POLLUTION_CHANNEL,
 } = require('./constants');
 
-const getLatestByCountry = ({ apicache, country, nodeCache, pusher }, done) => {
+const getLatestByCountry = ({ country, pusher }) => {
     const EVENT_LATEST_COUNTRY = `${EVENT_LATEST}-${country}`;
-    const LATEST_KEY_COUNTRY = `${LATEST_KEY}_${country}`;
-    const LATEST_PATH_COUNTRY = `${LATEST_PATH}_${country}`;
 
-    axios.get(`${API_OPENAQ}/latest`, {
+    return axios
+    .get(`${API_OPENAQ}/latest`, {
         params: {
             country,
         },
     })
-        .then((res) => {
-            const results = _.get(res, 'data.results');
-            const cachedResults = nodeCache.get(LATEST_KEY_COUNTRY);
+    .then((res) => {
+        const results = _.chain(res)
+            .get('data.results')
+            .map(city => {
+                city.measurements = _.chain(city.measurements)
+                    .uniqBy(({ lastUpdated, parameter, value }) => `${lastUpdated}_${parameter}_${value}`)
+                    .sortBy(['parameter', 'lastUpdated'])
+                    .value();
 
-            if (_.isArray(results) && !_.isEqual(results, cachedResults)) {
-                nodeCache.set(LATEST_KEY_COUNTRY, results, (err) => {
-                    if (err) {
-                        console.error(`SET ${LATEST_KEY_COUNTRY}`, err);
-                        done(err);
-                        return;
-                    }
+                return city;
+            })
+            .value();
 
-                    apicache.clear(LATEST_PATH_COUNTRY);
+        pusher.trigger(POLLUTION_CHANNEL, EVENT_LATEST_COUNTRY, results);
 
-                    pusher.trigger(POLLUTION_CHANNEL, EVENT_LATEST_COUNTRY, results);
-
-                    console.log(`SET ${LATEST_KEY_COUNTRY} OK`);
-
-                    done(null, results);
-                });
-            } else {
-                done(null, cachedResults);
-            }
-        })
-        .catch(err => {
-            console.error(`GET /latest ${country}`, err);
-            done(err);
-        });
-};
-
-const getLatest = ({ apicache, countries, nodeCache, pusher }) => {
-    console.log(`Total countries: ${_.size(countries)}`);
-
-    async.eachLimit(countries, _.size(os.cpus()), (item, next) => getLatestByCountry({
-        apicache,
-        country: item.code,
-        nodeCache,
-        pusher,
-    }, next), err => {
-        if (err) {
-            console.error('ALL latest KO', err);
-            return;
-        }
-
-        console.log('ALL latest OK');
+        return results;
+    })
+    .catch(err => {
+        console.error(`GET /latest ${country}`, err);
     });
 };
 
-const init = ({ apicache, app, nodeCache, pusher }) => {
-    const DEFERRED_MS = 2000;
+const getLatest = ({ countries, pusher }) => {
+    console.log(`Total countries: ${_.size(countries)}`);
 
-    setTimeout(() => {
-        const countries = nodeCache.get(COUNTRIES_KEY) || [];
-        const sortedCountries = _.sortBy(countries, 'code');
+    return Promise
+    .each(countries, country => getLatestByCountry({
+        country: country.code,
+        pusher,
+    }))
+    .then(() => console.log('ALL latest OK'))
+    .catch(err => console.error('ALL latest KO', err));
+};
+
+const init = ({ app, pusher }) => {
+    countries
+    .getCountries({ pusher })
+    .then(countries => {
         const args = {
-            apicache,
-            countries: sortedCountries,
-            nodeCache,
+            countries,
             pusher,
         };
 
@@ -89,22 +70,18 @@ const init = ({ apicache, app, nodeCache, pusher }) => {
         setInterval(() => {
             getLatest(args);
         }, CACHE_TTL_SEC * 1000);
+    });
 
-        app.use(`${LATEST_PATH}`, (req, res) => {
-            const { country } = req.query;
+    app.use(`${LATEST_PATH}`, (req, res) => {
+        const { country } = req.query;
 
-            getLatestByCountry({ apicache, country, nodeCache, pusher }, (err, data) => {
-                if (err) {
-                    console.error(`getLatestByCountry: ${country}`, err);
-
-                    res.status(500).json(err);
-                    return;
-                }
-                
-                res.json(data);
-            });
-        });
-    }, DEFERRED_MS);
+        getLatestByCountry({ country, pusher })
+        .then(data => res.json(data))
+        .catch(err => res.status(500).json(err));
+    });
 };
 
-module.exports = init;
+module.exports = {
+    getLatest,
+    init,
+};

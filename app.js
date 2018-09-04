@@ -23,9 +23,6 @@ const pusher = new Pusher({
     encrypted: true
 });
 
-const NodeCache = require('node-cache');
-const nodeCache = new NodeCache();
-
 const indexRouter = require('./routes/index');
 
 const app = express();
@@ -38,7 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
-app.use(apicache.middleware('1 day'));
+app.use(apicache.middleware('5 minutes'));
 
 // Serve static files from the React app
 app.use(express.static(path.resolve(__dirname, './web/build')));
@@ -46,13 +43,11 @@ app.use(express.static(path.resolve(__dirname, './web/build')));
 const cities = require('./cities');
 const countries = require('./countries');
 const latest = require('./latest');
-const keys = require('./keys');
 
-const args = { apicache, app, nodeCache, pusher };
+const args = { app, pusher };
 
-cities(args);
-countries(args);
-latest(args);
-keys(args);
+cities.init(args);
+countries.init(args);
+latest.init(args);
 
 module.exports = app;
