@@ -1,5 +1,6 @@
 import React from 'react';
 import { DataLayerProvider } from 'pollution-react-data-layer';
+import Pusher from 'pusher-js';
 
 import logo from './logo.png';
 import './App.css';
@@ -7,8 +8,26 @@ import './App.css';
 import CountriesList from './CountriesList';
 import MeasurementsByCity from './MeasurementsByCity';
 
+const {
+  REACT_APP_AXIOS_BASE_URL,
+  REACT_APP_PUSHER_APP_KEY,
+} = process.env;
+
+const config = {
+  axios: {
+    baseURL: REACT_APP_AXIOS_BASE_URL,
+  },
+};
+
+const deps = {
+  pusher: new Pusher(REACT_APP_PUSHER_APP_KEY, {
+    cluster: 'eu',
+    encrypted: true
+  }),
+};
+
 const App = () => (
-  <DataLayerProvider>
+  <DataLayerProvider config={config} deps={deps}>
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />

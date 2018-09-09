@@ -1,21 +1,35 @@
+import { DataLayerProvider } from 'pollution-react-data-layer';
+import Pusher from 'pusher-js/react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import {
+  REACT_APP_AXIOS_BASE_URL,
+  REACT_APP_PUSHER_APP_KEY,
+} from 'react-native-dotenv';
 
-// import test from './test';
+import CountriesList from './CountriesList';
 
-import { test } from 'very-fake-module';
+const config = {
+  axios: {
+    baseURL: REACT_APP_AXIOS_BASE_URL,
+  },
+};
 
-console.log('test', test);
+const deps = {
+  pusher: new Pusher(REACT_APP_PUSHER_APP_KEY, {
+    cluster: 'eu',
+    encrypted: true
+  }),
+};
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-      </View>
-    );
-  }
-}
+const App = () => (
+  <DataLayerProvider config={config} deps={deps}>
+    <View style={styles.container}>
+      <Text>Open up App.js to start working on your app!</Text>
+      <CountriesList />
+    </View>
+  </DataLayerProvider>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -25,3 +39,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default App;

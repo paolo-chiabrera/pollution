@@ -10,7 +10,12 @@
   },
   "dependencies": {
     "expo": "^29.0.0",
+    "pollution-react-data-layer": "0.0.11",
+    "pusher-js": "^4.3.1",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz"
+  },
+  "devDependencies": {
+    "react-native-dotenv": "^0.2.0"
   }
 }

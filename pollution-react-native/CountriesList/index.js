@@ -1,6 +1,6 @@
-import { enhanceCountriesList } from 'pollution-data-layer';
+import { enhanceCountriesList } from 'pollution-react-data-layer';
 
-import CountriesList from './CountriesList.jsx';
+import CountriesList from './CountriesList';
 
 export { CountriesList };
 

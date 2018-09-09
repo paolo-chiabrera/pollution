@@ -5180,15 +5180,13 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
 
-pollution-react-data-layer@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/pollution-react-data-layer/-/pollution-react-data-layer-0.0.1.tgz#b6a1c9159243482573b0262a1fbc30a5fc888337"
+pollution-react-data-layer@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/pollution-react-data-layer/-/pollution-react-data-layer-0.0.11.tgz#18bbfb2b43da2552c05ae103ab0fc22c6ef9688f"
   dependencies:
     axios "^0.18.0"
     lodash "^4.17.10"
     prop-types "^15.6.2"
-    pusher-js "^4.3.0"
-    react "^16.4.2"
     react-redux "^5.0.7"
     recompose "^0.30.0"
     redux "^4.0.0"
@@ -5595,7 +5593,7 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
-pusher-js@^4.3.0:
+pusher-js@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-4.3.1.tgz#ca0ecc09cd78ffb836f65031b9ab69244509d091"
   dependencies:
